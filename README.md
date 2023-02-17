@@ -7,4 +7,4 @@
 * It has inbuilt support fot querying multiple databases.
 * It is technology futuristic- Fills gap from db to bigdata, pluggable with new algorithms, pluggable and user defined API.
 ### Basic operation of student enrollment form
-![This is an image]("C:\Users\vasav\OneDrive\Pictures\Screenshots\2023-02-17.png")
+
