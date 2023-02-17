@@ -1,0 +1,197 @@
+<html lang="en">
+<head>
+<title>Student Enrollment Form</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h3> <b>Student Enrollment form</b></h3>
+<form id="studentform" method="get">
+<div class="form-group">
+<label>Roll Number:</label>
+<input type="text" id="RollNo" class="form-control" placeholder="Enter your roll number" onchange="getStudent()">
+</div>
+<div class="form-group">
+<label>Full Name:</label>
+<input type="text" class="form-control" id="FullName" placeholder="Enter your Full Name" name="FullName">
+</div>
+<div class="form-group">
+<label>Class:</label>
+<input type="text" class="form-control" id="Class" placeholder="Enter your Class" name="Class">
+</div>
+<div class="form-group">
+<label>Birth Date:</label>
+<input type="text" class="form-control" id="BirthDate" placeholder="Enter your birth date" name="BirthDate">
+</div>
+<div class="form-group">
+<label>Address:</label>
+<input type="text" class="form-control" id="Address" placeholder="Enter your address" name="Address">
+</div>
+<div class="form-group">
+<label>Enrollment Date:</label>
+<input type="text" class="form-control" id="EnrollmentDate" placeholder="Enter your enrollment date" name="EnrollmentDate">
+</div>
+<div class="form-group text-center" >
+    <button type="button" class="btn btn-lg btn-primary" id="save" onclick="saveData()">Save</button>
+    <button type="button" class="btn btn-lg btn-primary" id="change" onclick="changeData()">Change</button>
+    <button type="button" class="btn btn-lg btn-primary" id="reset" onclick="resetForm()">Reset</button>
+</div>
+</form>
+</div>
+<script src="https://login2explore.com/jpdb/resources/js/0.0.3/jpdb-commons.js"></script>
+<script>
+var jpdbBaseURL="http://api.login2explore.com:5577";
+var jpdbIRL="/api/irl";
+var jpdbIML="/api/iml";
+var DBName="SCHOOL-DB";
+var Rel="STUDENT-TABLE";
+var connToken="90932592|-31949278034923825|90949030";
+$("#RollNo").focus();
+function saveRecNo2LS(jsonObj){
+    var LVData= JSON.parse(jsonObj.data);
+    localStorage.setItem("recno",LVData.rec_no);
+}
+function getRollNoAsJsonObj(){
+var RollNo= $("#RollNo").val();
+var jsonStr={
+RollNo: RollNo
+};
+return JSON.stringify(jsonStr);
+       
+}
+function fillData(jsonObj){
+    saveRecNo2LS(jsonObj);
+    var record=JSON.parse(jsonObj.data).record;
+    $("#RollNo").val(record.RollNo);
+    $("#FullName").val(record.FullName);
+    $("#Class").val(record.Class);
+    $("#BirthDate").val(record.BirthDate);
+    $("#Address").val(record.Address);
+    $("#EnrollmentDate").val(record.EnrollmentDate);    
+}
+
+
+function validateData() {
+
+var RollNoVar = $("#RollNo").val();
+if (RollNoVar === "") {
+alert("Roll Number is Required");
+$("#RollNo").focus();
+return "";
+}
+var FullNameVar = $("#FullName").val();
+if (FullNameVar === "") {
+alert("Full Name is Required");
+$("#FullName").focus();
+return "";
+}
+var ClassVar = $("#Class").val();
+if (ClassVar === "") {
+alert("Class is Required");
+$("#Class").focus();
+return "";
+}
+var BirthDateVar = $("#BirthDate").val();
+if (BirthDateVar === "") {
+alert("Birth date is Required");
+$("#BirthDate").focus();
+return "";
+}
+var AddressVar = $("#Address").val();
+if (AddressVar === "") {
+alert("Address is Required");
+$("#Address").focus();
+return "";
+}
+var EnrollmentDateVar = $("#EnrollmentDate").val();
+if (EnrollmentDateVar === "") {
+alert("Enrollment Date is Required");
+$("#EnrollmentDate").focus();
+return "";
+}
+var jsonStrObj = {
+RollNo: RollNoVar,
+FullName: FullNameVar,
+Class: ClassVar,
+BirthDate: BirthDateVar,
+Address: AddressVar,
+EnrollmentDate: EnrollmentDateVar
+};
+return JSON.stringify(jsonStrObj);
+}
+function resetForm() {
+$("#RollNo").val("");
+$("#FullName").val("");
+$("#Class").val("");
+$("#BirthDate").val("");
+$("#Address").val("");
+$("#EnrollmentDate").val("");
+$("#RollNo").prop("disabled", false);
+$("#Save").prop("disabled", true);
+$("#change").prop("disabled", true);
+$("#reset").prop("disabled", true);
+$("#RollNo").focus();
+}
+function saveData() {
+var jsonStrObj = validateData();
+if (jsonStrObj === "") {
+return;
+}
+var putReqStr = createPUTRequest("90932592|-31949278034923825|90949030",jsonStrObj, "SCHOOL-DB", "STUDENT-TABLE");
+alert(putReqStr);
+jQuery.ajaxSetup({async: false});
+
+var resultObj = executeCommandAtGivenBaseUrl(putReqStr,"http://api.login2explore.com:5577", "/api/iml");
+jQuery.ajaxSetup({async: true});
+alert(JSON.stringify(resultObj));
+resetForm();
+$("#RollNo").focus();
+}
+
+function changeData(){
+$("#change").prop("disabled",true);
+jsonchg= validateData();
+var updateRequest= createUPDATERecordRequest(connToken,jsonchg,DBName,Rel,localStorage.getItem("record"));
+alert(updateRequest);
+jQuery.ajaxSetup({async: false});
+
+var resultObj = executeCommandAtGivenBaseUrl(updateRequest,"jpdbBaseURL", "/api/iml");
+jQuery.ajaxSetup({async: true});
+console.log(resultObj);
+alert(JSON.stringify(resultObj));
+resetForm();
+$("#RollNo").focus();
+}
+function getStudent(){
+var RollNoJsonObj= getRollNoAsJsonObj();
+var getRequest= createGET_BY_KEYRequest(connToken,DBName,Rel,RollNoJsonObj);
+jQuery.ajaxSetup({async: false});
+var resultObj = executeCommandAtGivenBaseUrl(getRequest,"http://api.login2explore.com:5577", "/api/irl");
+jQuery.ajaxSetup({async: true});
+alert(JSON.stringify(resultObj));
+if(resultObj.status === 400){
+   
+    $("Save").prop("disabled",false);
+    $("#reset").prop("disabled",false);
+    $("#FullName").focus();
+}else if(resultObj.status === 200){
+    $("#RollNo").prop("disabled",true);
+    fillData(resultObj);
+    
+    $("#change").prop("disabled",false);
+    $("#reset").prop("disabled",false);
+     
+    
+    $("#FullName").focus();
+    }   
+}
+
+</script>   
+
+</body>
+</html>
